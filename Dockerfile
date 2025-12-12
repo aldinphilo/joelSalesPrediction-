@@ -1,5 +1,5 @@
 # Stage 1: Build stage with PyTorch and dependencies
-FROM pytorch/pytorch:2.9.1-cpu AS builder
+FROM pytorch/pytorch:2.1.2-cpu AS builder
 
 # Set working directory
 WORKDIR /app
