@@ -13,7 +13,6 @@ app = Flask(__name__)
 app.debug = True
 app.secret_key = os.getenv("APP_SECRET_KEY")
 app.logger.setLevel(logging.INFO)
-
 # Dynamic model path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "Model")
@@ -187,4 +186,4 @@ def predict():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port)

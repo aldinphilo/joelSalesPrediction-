@@ -1,27 +1,23 @@
-# Use lightweight Python image (Debian-based for better torch compatibility)
-FROM python:3.11-slim
+# Debian-based image (better torch compatibility than slim)
+FROM python:3.11
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies for building Python packages
-# RUN apt-get update \
-#     && apt-get install -y --no-install-recommends \
-#        build-essential \
-#        curl \
-#        ca-certificates \
-#     && rm -rf /var/lib/apt/lists/* \
-#     && pip install --no-cache-dir --upgrade pip setuptools wheel
+# Install system dependencies required by torch
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Upgrade pip tools
+RUN pip install --upgrade pip setuptools wheel
+
+# Copy requirements and install deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code (including Model/)
+# Copy application code
 COPY . .
 
-# Expose port
-EXPOSE 8000
-
-# Entrypoint (downloads model then starts Flask app)
-CMD ["python", "app.py"]
+# Render provides PORT env variable
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT", "--workers", "1", "--threads", "2"]
