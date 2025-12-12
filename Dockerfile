@@ -13,8 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy everything to the container
 COPY . .
 
+# Make entrypoint executable
+RUN chmod +x /app/scripts/entrypoint.sh || true
+
 # Expose port (Railway/Render use PORT env variable)
 EXPOSE 8000
 
-# Run the application
-CMD ["python", "app.py"]
+# ENTRYPOINT runs the downloader then starts the app. Provide MODEL_URL or MODEL_HF_ID
+# at runtime: e.g. `docker run -e MODEL_URL=... -p 8000:8000 <image>`
+ENTRYPOINT ["/bin/sh", "/app/scripts/entrypoint.sh"]

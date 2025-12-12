@@ -5,12 +5,14 @@ import torch
 import re
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
 
 app = Flask(__name__)
 app.debug = True
 app.secret_key = os.getenv("APP_SECRET_KEY")
+app.logger.setLevel(logging.INFO)
 
 # Dynamic model path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -129,19 +131,22 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        app.logger.info(f"Login attempt: username={username!r} password={'***' if password else None}")
         
         # Hardcoded credentials
         if username == "joel" and password == "joel@123":
             session["user"] = username
+            app.logger.info(f"Login success: setting session user={username}")
             return redirect(url_for("home"))
         else:
-            return render_template("Login.html", error="Invalid username or password")
+            app.logger.info("Login failed: invalid credentials")
+            return render_template("login.html", error="Invalid username or password")
     
     # Check if already logged in
     if "user" in session:
         return redirect(url_for("home"))
     
-    return render_template("Login.html")
+    return render_template("login.html")
 
 
 @app.route("/logout")
