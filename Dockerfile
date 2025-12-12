@@ -5,13 +5,13 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies for building Python packages
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       build-essential \
-       curl \
-       ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --upgrade pip setuptools wheel
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends \
+#        build-essential \
+#        curl \
+#        ca-certificates \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
