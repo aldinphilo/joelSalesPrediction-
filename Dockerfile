@@ -1,30 +1,22 @@
-# Stage 1: Build stage with PyTorch and dependencies
-FROM pytorch/pytorch:2.1.2-cpu AS builder
-
-# Set working directory
-WORKDIR /app
-
-# Copy requirements and install Python deps (including PyTorch pre-installed)
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt
-
-# Stage 2: Runtime stage (slim)
+# Use lightweight Python image
 FROM python:3.11-slim
 
-# Copy Python environment from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-
 # Set working directory
 WORKDIR /app
 
-# Install minimal runtime deps
+# Install system dependencies for building Python packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+       build-essential \
+       git \
        curl \
        ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app code (excluding large dirs via .dockerignore)
 COPY . .
@@ -35,5 +27,5 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # Expose port
 EXPOSE 8000
 
-# Entrypoint
+# Entrypoint (downloads model then starts Flask app)
 ENTRYPOINT ["/bin/sh", "/app/scripts/entrypoint.sh"]
